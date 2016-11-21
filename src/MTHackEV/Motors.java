@@ -28,6 +28,7 @@ public class Motors extends Thread{
 		white = DEObj.getColor();
 		}
 	
+	// unused
 	public void Turn(int degrees){
 		
 		if(degrees>0){
@@ -55,7 +56,7 @@ public class Motors extends Thread{
 		else if(RGB[1]*0.8 > RGB[0] && RGB[1]*0.8 > RGB[2]){ //if green color is the biggest
 			return "green";
 		}
-		else if(RGB[2] > RGB[0] && RGB[2] > RGB[1]){ //if blue is biggest
+		else if(RGB[2]*0.95 > RGB[0] && RGB[2]*0.95 > RGB[1]){ //if blue is biggest
 			return "blue";
 		}
 		
@@ -83,14 +84,12 @@ public class Motors extends Thread{
 	
 	
 	public void run(){
-		
 		// must 0.06 , valk = 0.6
 		
 		double correction=0,value = 0,kp = 1.1; //kp affects the turning when following the line
 		double midpoint = (white - black ) / 2 + black;
 		DEObj.SetMiddleColor(midpoint);
-		int right=0,left=0,forward=38, turn=0, stage=1, rightTurns = 0, straight = 0;
-		int time=0;
+		int right=0,left=0,forward=38, turn=0, stage=1, rightTurns = 0, straight = 0, time=0;
 		
 		DEObj.ResetTime(); //to make sure that there is no time counted
 		
@@ -103,7 +102,7 @@ public class Motors extends Thread{
 				//will follow the line and continue trying to find it unless little while has passed on white.
 				case 1:
 					//this moves code to stage 2 if only white is detected for a while
-					if(DEObj.GetTime() > 5000 && DEObj.GetFollow()){ 
+					if(DEObj.GetTime() > 4800 && DEObj.GetFollow()){ 
 						stage=2;
 						break;
 					}
@@ -122,58 +121,83 @@ public class Motors extends Thread{
 				case 2:
 					//if no longer on only white, will go to stage 3
 					if(value < (DEObj.GetMiddle() * 1.2)){
-						//value = 0;
 						stage = 3;
 						break;
 					}
 					
 					//starts turning to left
-					value = midpoint*0.7;
+					//value = midpoint*0.7;
 					
 					//calculations for the turn is calculated here
-					correction = kp * ( midpoint - value);
-					turn = (int)(correction*100);
 					turn = 10;
-					left = forward + (turn-10);
-					right = forward + turn;				
+					left = forward + turn;
+					right = forward + (turn-4);				
 					break;
 					
 					// stops and turns left in order go to the right direction
 				case 3:
 					
-					left = 0;
+					left = -20;
 					right = 45;
 					time++;
 					
 					if(value < DEObj.GetMiddle() * 1.1 && time > 150){
-						left = 0;
-						right = -25;
-						Forward(left,right);
-						Delay.msDelay(300);
+						//left = 0;
+						//right = -30;
+						//Forward(left,right);
+						//Delay.msDelay(500);
 						time = 0;
 						stage = 4;
 					}
 					
 					break;
 				
-				//will try to find the colors.
+				//will try to find the colors. Goes from red to blue
 				case 4:
 					String color = GetColor();
 					
 					if(color=="red"){
 						
 						if(rightTurns==0){	
+							
+							while(true){
+								
+								if(DEObj.getStop()){
+									break;
+								}
+								
+								left = 50;
+								right = 20;
+								Forward(left,right);
+								value = DEObj.getColor();
+								color = GetColor();
+								
+								if(value < (DEObj.GetMiddle() * 1.1) && color != "red"){
+									rightTurns++;
+									
+									left = -25;
+									right = 0;
+									Forward(left,right);
+									Delay.msDelay(300);									
+									break;
+								}
+								Delay.msDelay(100);
+							}
+							
+							/*
 							left = 50;
 							right = 20;
 							Forward(left,right);
 							Delay.msDelay(1300);
 							rightTurns++;
+							*/
+							
 						}
 						else{
-							left = 45;
+							left = 47;
 							right = 50;
 							Forward(left,right);
-							Delay.msDelay(1000);
+							Delay.msDelay(800);
 							straight++;
 						}
 					}
@@ -184,10 +208,10 @@ public class Motors extends Thread{
 							break;
 						}
 						else{
-							left = 42;
+							left = 47;
 							right = 50;
 							Forward(left,right);
-							Delay.msDelay(1000);
+							Delay.msDelay(800);
 							straight++;
 						}
 						
@@ -209,14 +233,21 @@ public class Motors extends Thread{
 					
 				case 5:
 					left=40;
-					right=37;
+					right=35;
 					time++;
 					//LCD.drawString("time = " + time, 1, 5);
 					if(value < DEObj.GetMiddle() * 1.1 && time > 800){
 
 						forward = 45;
 						midpoint = midpoint + 0.105;
+						
+						left = 0;
+						right = -25;
+						Forward(left,right);
+						Delay.msDelay(400);	
+						
 						stage = 6;
+						break;
 					}
 					
 					break;
@@ -225,6 +256,14 @@ public class Motors extends Thread{
 					
 					correction = kp * ( midpoint - value);
 					turn = (int)(correction*100);
+					if(turn > 25){
+						turn = 25;
+					}
+					/*
+					 * if(turn < -20){
+						turn = -20;
+					}
+					*/
 					left = forward - turn;
 					right = forward + turn;
 					break;
@@ -235,7 +274,7 @@ public class Motors extends Thread{
 			
 			//LCD.drawString("ltacho = " + leftMotor.getTachoCount(), 1, 5);
 			//LCD.drawString("rtacho = " + rightMotor.getTachoCount(), 1, 6);
-
+			
 			
 			//if button is pressed, this will stop the loop.
 			if(DEObj.getStop()){
