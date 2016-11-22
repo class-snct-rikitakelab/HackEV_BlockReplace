@@ -25,9 +25,9 @@ public class Main{
 	public static void main(String[] args) {
 		
 		DE = new DataExchange();
-		Delay.msDelay(200);
+		Delay.msDelay(300);
 		SObj = new Sensors(DE);
-		Delay.msDelay(200);
+		Delay.msDelay(300);
 		MObj = new Motors(DE);
 				
 		SensorMode touch = touchSensor.getMode(0);
@@ -78,15 +78,16 @@ public class Main{
 		tValue[0]=0;
 		while(tValue[0]!=1){
 			touch.fetchSample(tValue, 0);
-			LCD.drawString("value: " + DE.getColor(), 1, 1); //value used by motors is value * 100
-			LCD.drawString("distance" + DE.GetDistance(), 1, 2);
+			//LCD.drawString("value: " + DE.getColor(), 1, 1); //value used by motors is value * 100 //oli
+			//LCD.drawString("distance" + DE.GetDistance(), 1, 2);	//oli
 			//LCD.drawString("rate = " + DE.GetRate(), 1, 3);
-			LCD.drawString("time = " + DE.GetTime(), 1, 3);
+			//LCD.drawString("time = " + DE.GetTime(), 1, 3); /oli
 			
+			/*
 			LCD.drawString("Red = " + DE.GetRed(), 1, 4);
 			LCD.drawString("Green = " + DE.GetGreen(), 1, 5);
 			LCD.drawString("Blue = " + DE.GetBlue(), 1, 6);
-
+			*/
 
 			
 			Delay.msDelay(10);
