@@ -56,7 +56,7 @@ public class Motors extends Thread{
 		else if(RGB[1]*0.8 > RGB[0] && RGB[1]*0.8 > RGB[2]){ //if green color is the biggest
 			return "green";
 		}
-		else if(RGB[2]*0.95 > RGB[0] && RGB[2]*0.95 > RGB[1]){ //if blue is biggest
+		else if(RGB[2] > RGB[0] && RGB[2] > RGB[1]){ //if blue is biggest
 			return "blue";
 		}
 		
@@ -131,7 +131,7 @@ public class Motors extends Thread{
 					//calculations for the turn is calculated here
 					turn = 10;
 					left = forward + turn;
-					right = forward + (turn-4);				
+					right = forward + (turn);				
 					break;
 					
 					// stops and turns left in order go to the right direction
@@ -141,11 +141,11 @@ public class Motors extends Thread{
 					right = 45;
 					time++;
 					
-					if(value < DEObj.GetMiddle() * 1.1 && time > 150){
-						//left = 0;
-						//right = -30;
-						//Forward(left,right);
-						//Delay.msDelay(500);
+					if(value < DEObj.GetMiddle() * 1.1 && time > 300){
+						left = 0;
+						right = -30;
+						Forward(left,right);
+						Delay.msDelay(150);
 						time = 0;
 						stage = 4;
 					}
@@ -175,23 +175,14 @@ public class Motors extends Thread{
 								if(value < (DEObj.GetMiddle() * 1.1) && color != "red"){
 									rightTurns++;
 									
-									left = -25;
+									left = -30;
 									right = 0;
 									Forward(left,right);
-									Delay.msDelay(300);									
+									Delay.msDelay(450);									
 									break;
 								}
 								Delay.msDelay(100);
 							}
-							
-							/*
-							left = 50;
-							right = 20;
-							Forward(left,right);
-							Delay.msDelay(1300);
-							rightTurns++;
-							*/
-							
 						}
 						else{
 							left = 47;
@@ -236,15 +227,15 @@ public class Motors extends Thread{
 					right=35;
 					time++;
 					//LCD.drawString("time = " + time, 1, 5);
-					if(value < DEObj.GetMiddle() * 1.1 && time > 800){
+					if(value < DEObj.GetMiddle() * 1.1 && time > 1500){
 
 						forward = 45;
 						midpoint = midpoint + 0.105;
 						
 						left = 0;
-						right = -25;
+						right = -30;
 						Forward(left,right);
-						Delay.msDelay(400);	
+						Delay.msDelay(420);	
 						
 						stage = 6;
 						break;
@@ -256,14 +247,9 @@ public class Motors extends Thread{
 					
 					correction = kp * ( midpoint - value);
 					turn = (int)(correction*100);
-					if(turn > 25){
-						turn = 25;
-					}
-					/*
-					 * if(turn < -20){
-						turn = -20;
-					}
-					*/
+					//if(turn > 25){
+					//	turn = 25;
+					//}
 					left = forward - turn;
 					right = forward + turn;
 					break;
@@ -278,6 +264,9 @@ public class Motors extends Thread{
 			
 			//if button is pressed, this will stop the loop.
 			if(DEObj.getStop()){
+				left=0;
+				right=0;
+				Forward(left,right);
 				break;
 			}
 			
