@@ -188,7 +188,7 @@ public class Motors extends Thread{
 							left = 47;
 							right = 50;
 							Forward(left,right);
-							Delay.msDelay(800);
+							Delay.msDelay(700);
 							straight++;
 						}
 					}
@@ -202,7 +202,7 @@ public class Motors extends Thread{
 							left = 47;
 							right = 50;
 							Forward(left,right);
-							Delay.msDelay(800);
+							Delay.msDelay(700);
 							straight++;
 						}
 						
@@ -226,7 +226,6 @@ public class Motors extends Thread{
 					left=40;
 					right=35;
 					time++;
-					//LCD.drawString("time = " + time, 1, 5);
 					if(value < DEObj.GetMiddle() * 1.1 && time > 1500){
 
 						forward = 45;
@@ -235,7 +234,7 @@ public class Motors extends Thread{
 						left = 0;
 						right = -30;
 						Forward(left,right);
-						Delay.msDelay(420);	
+						Delay.msDelay(320);	
 						
 						stage = 6;
 						break;
