@@ -50,7 +50,10 @@ public class Motors extends Thread{
 		RGB[1] = DEObj.GetGreen();
 		RGB[2] = DEObj.GetBlue();
 		
-		if(RGB[0]*0.8 > RGB[1] && RGB[0]*0.8 > RGB[2]){ //if red color is the biggest
+		if(RGB[0]*0.9 > RGB[1] && RGB[1] > RGB[2]*2){
+			return "yellow";
+		}
+		else if(RGB[0]*0.79 > RGB[1] && RGB[0]*0.79 > RGB[2]){ //if red color is the biggest
 			return "red";
 		}
 		else if(RGB[1]*0.8 > RGB[0] && RGB[1]*0.8 > RGB[2]){ //if green color is the biggest
@@ -82,6 +85,24 @@ public class Motors extends Thread{
 		leftMotor.controlMotor(left, 1);
 	}
 	
+	private String CheckColor(){
+		
+		int left=0,right=0;
+		
+		Forward(left,right);		
+		middleMotor.controlMotor(30,1);
+		Delay.msDelay(700);
+		middleMotor.controlMotor(0,1);
+		Delay.msDelay(250);
+		String color = GetColor();
+		Delay.msDelay(250);
+		middleMotor.controlMotor(40, 2);
+		Delay.msDelay(500);
+		middleMotor.controlMotor(0,0);
+		
+		return color;
+	}
+	
 	
 	public void run(){
 		// must 0.06 , valk = 0.6
@@ -90,6 +111,8 @@ public class Motors extends Thread{
 		double midpoint = (white - black ) / 2 + black;
 		DEObj.SetMiddleColor(midpoint);
 		int right=0,left=0,forward=38, turn=0, stage=1, rightTurns = 0, straight = 0, time=0;
+		boolean newBlock = true;
+		String newBlockColor;
 		
 		DEObj.ResetTime(); //to make sure that there is no time counted
 		
@@ -155,6 +178,7 @@ public class Motors extends Thread{
 				//will try to find the colors. Goes from red to blue
 				case 4:
 					String color = GetColor();
+					forward=34;
 					
 					if(color=="red"){
 						
@@ -207,6 +231,14 @@ public class Motors extends Thread{
 						}
 						
 					}
+					else if(DEObj.GetDistance() < 0.04 && newBlock==true){
+						//LCD.drawString("dista= " + DEObj.GetDistance(), 1, 4);
+						
+						newBlockColor = CheckColor();
+						LCD.drawString("block= " + newBlockColor, 1, 4);
+						newBlock=false;
+
+					}
 					
 					//calculations for the turn is calculated here
 					correction = (kp-0.1) * ( midpoint - value);
@@ -223,8 +255,10 @@ public class Motors extends Thread{
 					break;
 					
 				case 5:
+					forward=38;
 					left=40;
 					right=35;
+					
 					time++;
 					if(value < DEObj.GetMiddle() * 1.1 && time > 1500){
 
