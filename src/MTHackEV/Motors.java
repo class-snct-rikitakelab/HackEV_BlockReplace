@@ -8,7 +8,7 @@ import lejos.utility.Delay;
 
 public class Motors extends Thread{
 	
-	double white = 0.6, black = 0.06;	
+	double white = 0.7, black = 0.06;	
 	
 	private DataExchange DEObj;
 	TachoMotorPort leftMotor = MotorPort.C.open(TachoMotorPort.class);
@@ -50,16 +50,19 @@ public class Motors extends Thread{
 		RGB[1] = DEObj.GetGreen();
 		RGB[2] = DEObj.GetBlue();
 		
-		if(RGB[0]*0.9 > RGB[1] && RGB[1] > RGB[2]*2){
+		if((RGB[0] > 5 || RGB[0] < 0.02) && (RGB[1] > 5 || RGB[1] < 0.02) && (RGB[2] > 5 || RGB[2] < 0.02)){
+			return "black";
+		}
+		else if(RGB[0]*0.9 > RGB[1] && RGB[1] > RGB[2]*2){
 			return "yellow";
 		}
-		else if(RGB[0]*0.79 > RGB[1] && RGB[0]*0.79 > RGB[2]){ //if red color is the biggest
+		else if(RGB[0]*0.77 > RGB[1] && RGB[0]*0.77 > RGB[2]){ //if red color is the biggest
 			return "red";
 		}
 		else if(RGB[1]*0.8 > RGB[0] && RGB[1]*0.8 > RGB[2]){ //if green color is the biggest
 			return "green";
 		}
-		else if(RGB[2] > RGB[0] && RGB[2] > RGB[1]){ //if blue is biggest
+		else if(RGB[2]*0.95 > RGB[0] && RGB[2]*0.95 > RGB[1]){ //if blue is biggest
 			return "blue";
 		}
 		
@@ -148,9 +151,6 @@ public class Motors extends Thread{
 						break;
 					}
 					
-					//starts turning to left
-					//value = midpoint*0.7;
-					
 					//calculations for the turn is calculated here
 					turn = 10;
 					left = forward + turn;
@@ -165,14 +165,13 @@ public class Motors extends Thread{
 					time++;
 					
 					if(value < DEObj.GetMiddle() * 1.1 && time > 300){
-						left = 0;
-						right = -30;
-						Forward(left,right);
-						Delay.msDelay(150);
+						//left = 0;
+						//right = -30;
+						Forward(0,-30);
+						Delay.msDelay(100);
 						time = 0;
 						stage = 4;
 					}
-					
 					break;
 				
 				//will try to find the colors. Goes from red to blue
@@ -229,15 +228,31 @@ public class Motors extends Thread{
 							Delay.msDelay(700);
 							straight++;
 						}
-						
 					}
-					else if(DEObj.GetDistance() < 0.04 && newBlock==true){
-						//LCD.drawString("dista= " + DEObj.GetDistance(), 1, 4);
+					else if(DEObj.GetDistance() < 0.05 && newBlock==true){
 						
 						newBlockColor = CheckColor();
 						LCD.drawString("block= " + newBlockColor, 1, 4);
-						newBlock=false;
-
+						
+						if(newBlockColor=="black"){
+							//will circle around the block
+							
+							//this sequence will circle around the block
+							Forward(-50,-20);
+							Delay.msDelay(700);
+							Forward(40,40);
+							Delay.msDelay(1500);
+							Forward(50,20);
+							Delay.msDelay(1000);
+							
+							Forward(50,30);
+							Delay.msDelay(500);
+							
+							
+						}
+						else{
+							newBlock=false;
+						}
 					}
 					
 					//calculations for the turn is calculated here
@@ -290,10 +305,6 @@ public class Motors extends Thread{
 			
 			//makes the robot move
 			Forward(left,right);
-			
-			//LCD.drawString("ltacho = " + leftMotor.getTachoCount(), 1, 5);
-			//LCD.drawString("rtacho = " + rightMotor.getTachoCount(), 1, 6);
-			
 			
 			//if button is pressed, this will stop the loop.
 			if(DEObj.getStop()){
