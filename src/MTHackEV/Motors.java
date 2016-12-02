@@ -229,7 +229,7 @@ public class Motors extends Thread{
 							straight++;
 						}
 					}
-					else if(DEObj.GetDistance() < 0.05 && newBlock==true){
+					if( !(DEObj.GetDistance() > 0.08) && newBlock==true){ //Kato että ultrasonikki alustuu oikein
 						
 						newBlockColor = CheckColor();
 						LCD.drawString("block= " + newBlockColor, 1, 4);
@@ -245,9 +245,9 @@ public class Motors extends Thread{
 							Forward(50,20);
 							Delay.msDelay(1000);
 							
-							Forward(50,30);
-							Delay.msDelay(500);
-							
+							Forward(45,50);
+							Delay.msDelay(1500);
+							straight++;
 							
 						}
 						else{
