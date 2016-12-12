@@ -92,6 +92,7 @@ public class Motors extends Thread{
 		
 		int left=0,right=0;
 		
+		/*
 		Forward(left,right);		
 		middleMotor.controlMotor(30,1);
 		Delay.msDelay(700);
@@ -102,8 +103,39 @@ public class Motors extends Thread{
 		middleMotor.controlMotor(40, 2);
 		Delay.msDelay(500);
 		middleMotor.controlMotor(0,0);
+		*/
+		
+		//nostaa keskimmäisen 90 astetta (alk 180)
+		SetMiddle(90);
+		//ottaa värin
+		String color = GetColor();
+		//laskee keskimmäisen
+		SetMiddle(180);
 		
 		return color;
+	}
+	
+	void SetMiddle(int degrees){
+		
+		int degreeValue = DEObj.GetDegrees(), direction;
+		
+		degreeValue = degreeValue - degrees;
+		
+		if(degreeValue<0){
+			direction = 2;
+			degreeValue = degreeValue * -1;
+		}
+		else{
+			direction = 1;
+		}
+		
+		for(int i=0;i<degreeValue;i++){
+			
+			middleMotor.controlMotor(30, direction);
+			Delay.msDelay(9);
+		}
+		middleMotor.controlMotor(0,0);
+		
 	}
 	
 	
@@ -118,6 +150,8 @@ public class Motors extends Thread{
 		String newBlockColor;
 		
 		DEObj.ResetTime(); //to make sure that there is no time counted
+		
+		DEObj.SetDegrees(180);
 		
 		while(true){
 			
