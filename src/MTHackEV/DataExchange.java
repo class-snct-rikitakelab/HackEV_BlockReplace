@@ -6,7 +6,7 @@ public class DataExchange extends Thread{
 	private float color = 0, distance = 0, rate=0, middleColor = 0;
 	float[] RGB = new float[3]; //Red = 0, Green = 1, Blue = 2
 	
-	private int time = 0;
+	private int time = 0, middleMotorDegrees;
 	
 	public DataExchange(){
 		
@@ -79,11 +79,6 @@ public class DataExchange extends Thread{
 	}
 	
 	public void SetRGB(float[] newRGB){
-		/*
-		RGB[0] = newRGB[0];
-		RGB[1] = newRGB[1];
-		RGB[2] = newRGB[2];
-		*/
 		for(int i=0;i<3;i++){
 			RGB[i] = newRGB[i];
 		}
@@ -111,5 +106,12 @@ public class DataExchange extends Thread{
 	
 	public float GetBlue(){
 		return RGB[2];
+	}
+	
+	public void SetDegrees(int degrees){
+		middleMotorDegrees=degrees;
+	}
+	public int GetDegrees(){
+		return middleMotorDegrees;
 	}
 }
