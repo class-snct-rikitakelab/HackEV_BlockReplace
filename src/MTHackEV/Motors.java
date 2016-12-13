@@ -28,19 +28,6 @@ public class Motors extends Thread{
 		white = DEObj.getColor();
 		}
 	
-	// unused
-	public void Turn(int degrees){
-		
-		if(degrees>0){
-			Forward(50,0);
-		}
-		else{
-			Forward(0,50);
-		}
-		
-		Delay.msDelay(degrees);
-	}
-	
 	public String GetColor(){
 		
 		float[] RGB = new float[3]; //Red = 0, Green = 1, Blue = 2
@@ -89,9 +76,7 @@ public class Motors extends Thread{
 	}
 	
 	private String CheckColor(){
-		
-		int left=0,right=0;
-		
+				
 		/*
 		Forward(left,right);		
 		middleMotor.controlMotor(30,1);
@@ -105,6 +90,7 @@ public class Motors extends Thread{
 		middleMotor.controlMotor(0,0);
 		*/
 		
+		Forward(0,0);
 		//nostaa keskimmäisen 90 astetta (alk 180)
 		SetMiddle(90);
 		//ottaa värin
@@ -117,7 +103,8 @@ public class Motors extends Thread{
 	
 	void SetMiddle(int degrees){
 		
-		int degreeValue = DEObj.GetDegrees(), direction;
+		int degreeValue = DEObj.GetDegrees(), direction=0;
+		DEObj.SetDegrees(degrees);
 		
 		degreeValue = degreeValue - degrees;
 		
@@ -164,6 +151,7 @@ public class Motors extends Thread{
 					//this moves code to stage 2 if only white is detected for a while
 					if(DEObj.GetTime() > 4800 && DEObj.GetFollow()){ 
 						stage=2;
+						LCD.drawString("stage 2", 1, 1);
 						break;
 					}
 					
@@ -182,6 +170,7 @@ public class Motors extends Thread{
 					//if no longer on only white, will go to stage 3
 					if(value < (DEObj.GetMiddle() * 1.2)){
 						stage = 3;
+						LCD.drawString("stage 3", 1, 1);
 						break;
 					}
 					
@@ -205,6 +194,8 @@ public class Motors extends Thread{
 						Delay.msDelay(100);
 						time = 0;
 						stage = 4;
+						LCD.drawString("stage 4", 1, 1);
+
 					}
 					break;
 				
@@ -253,6 +244,8 @@ public class Motors extends Thread{
 						
 						if(straight >= 2){
 							stage = 5;
+							LCD.drawString("stage 5", 1, 1);
+
 							break;
 						}
 						else{
@@ -263,7 +256,8 @@ public class Motors extends Thread{
 							straight++;
 						}
 					}
-					if( !(DEObj.GetDistance() > 0.08) && newBlock==true){ //Kato että ultrasonikki alustuu oikein
+					//if( !(DEObj.GetDistance() > 0.04) && newBlock==true){ //Kato että ultrasonikki alustuu oikein
+					if( (DEObj.GetDistance()<0.04) && newBlock==true){
 						
 						newBlockColor = CheckColor();
 						LCD.drawString("block= " + newBlockColor, 1, 4);
@@ -280,7 +274,7 @@ public class Motors extends Thread{
 							Delay.msDelay(1000);
 							
 							Forward(45,50);
-							Delay.msDelay(1500);
+							Delay.msDelay(1000);
 							straight++;
 							
 						}
@@ -288,6 +282,8 @@ public class Motors extends Thread{
 							newBlock=false;
 						}
 					}
+
+						
 					
 					//calculations for the turn is calculated here
 					correction = (kp-0.1) * ( midpoint - value);
@@ -320,6 +316,8 @@ public class Motors extends Thread{
 						Delay.msDelay(320);	
 						
 						stage = 6;
+						LCD.drawString("stage 6", 1, 1);
+
 						break;
 					}
 					
