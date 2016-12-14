@@ -125,6 +125,30 @@ public class Motors extends Thread{
 		
 	}
 	
+	void GetPuzzleColors(){
+		
+		String[][] puzzleColors = new String[4][4];
+
+		for(int i=0;i<=3;i++){
+			for(int u=0;u<=3;i++){
+				if(i>1 && u<=1){
+					puzzleColors[u][i]="Y";
+				}
+				else if(i<1 && u<=1){
+					puzzleColors[i][u]="B";
+				}
+				else if(u<1 && i<1){
+					puzzleColors[u][u]="R";
+				}
+				else{
+					puzzleColors[i][i]="G";
+				}
+				
+			}
+		}
+		
+	}
+	
 	
 	public void run(){
 		// must 0.06 , valk = 0.6
@@ -282,8 +306,8 @@ public class Motors extends Thread{
 							newBlock=false;
 						}
 					}
-
-						
+					
+					LCD.drawString("d= " + DEObj.GetDistance(), 1, 2);
 					
 					//calculations for the turn is calculated here
 					correction = (kp-0.1) * ( midpoint - value);
