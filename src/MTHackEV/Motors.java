@@ -25,6 +25,7 @@ public class Motors extends Thread{
 	}
 	
 	public void SetWhite(){
+		GetPuzzleColors();
 		white = DEObj.getColor();
 		}
 	
@@ -125,27 +126,51 @@ public class Motors extends Thread{
 		
 	}
 	
-	void GetPuzzleColors(){
+	String[][] GetPuzzleColors(){
 		
 		String[][] puzzleColors = new String[4][4];
 
 		for(int i=0;i<=3;i++){
-			for(int u=0;u<=3;i++){
+			for(int u=0;u<=3;u++){
 				if(i>1 && u<=1){
-					puzzleColors[u][i]="Y";
+					puzzleColors[i][u]="Y";
 				}
-				else if(i<1 && u<=1){
+				else if(i<=1 && u>1){
 					puzzleColors[i][u]="B";
 				}
-				else if(u<1 && i<1){
-					puzzleColors[u][u]="R";
+				else if(u>1 && i>1){
+					puzzleColors[i][u]="R";
 				}
 				else{
-					puzzleColors[i][i]="G";
+					puzzleColors[i][u]="G";
 				}
 				
 			}
 		}
+		
+		/*
+		LCD.drawString(puzzleColors[0][0], 1, 1);
+		LCD.drawString(puzzleColors[0][1], 2, 1);
+		LCD.drawString(puzzleColors[0][2], 3, 1);
+		LCD.drawString(puzzleColors[0][3], 4, 1);
+		
+		LCD.drawString(puzzleColors[1][0], 1, 2);
+		LCD.drawString(puzzleColors[1][1], 2, 2);
+		LCD.drawString(puzzleColors[1][2], 3, 2);
+		LCD.drawString(puzzleColors[1][3], 4, 2);
+		
+		LCD.drawString(puzzleColors[2][0], 1, 3);
+		LCD.drawString(puzzleColors[2][1], 2, 3);
+		LCD.drawString(puzzleColors[2][2], 3, 3);
+		LCD.drawString(puzzleColors[2][3], 4, 3);
+		
+		LCD.drawString(puzzleColors[3][0], 1, 4);
+		LCD.drawString(puzzleColors[3][1], 2, 4);
+		LCD.drawString(puzzleColors[3][2], 3, 4);
+		LCD.drawString(puzzleColors[3][3], 4, 4);
+		*/
+		
+		return puzzleColors;
 		
 	}
 	
@@ -280,6 +305,9 @@ public class Motors extends Thread{
 							straight++;
 						}
 					}
+					
+					LCD.drawString("d= " + DEObj.GetDistance(), 1, 2);
+					
 					//if( !(DEObj.GetDistance() > 0.04) && newBlock==true){ //Kato että ultrasonikki alustuu oikein
 					if( (DEObj.GetDistance()<0.04) && newBlock==true){
 						
@@ -297,8 +325,8 @@ public class Motors extends Thread{
 							Forward(50,20);
 							Delay.msDelay(1000);
 							
-							Forward(45,50);
-							Delay.msDelay(1000);
+							Forward(43,50);
+							Delay.msDelay(900);
 							straight++;
 							
 						}
