@@ -101,7 +101,7 @@ public class Motors extends Thread{
 		
 		return color;
 	}
-	
+
 	void SetMiddle(int degrees){
 		
 		int degreeValue = DEObj.GetDegrees(), direction=0;
@@ -126,6 +126,52 @@ public class Motors extends Thread{
 		
 	}
 	
+	void PrintPuzzle(String[][]puzzleColors){
+		
+		LCD.drawString(puzzleColors[0][0], 1, 1);
+		LCD.drawString(puzzleColors[0][1], 2, 1);
+		LCD.drawString(puzzleColors[0][2], 3, 1);
+		LCD.drawString(puzzleColors[0][3], 4, 1);
+		
+		LCD.drawString(puzzleColors[1][0], 1, 2);
+		LCD.drawString(puzzleColors[1][1], 2, 2);
+		LCD.drawString(puzzleColors[1][2], 3, 2);
+		LCD.drawString(puzzleColors[1][3], 4, 2);
+		
+		LCD.drawString(puzzleColors[2][0], 1, 3);
+		LCD.drawString(puzzleColors[2][1], 2, 3);
+		LCD.drawString(puzzleColors[2][2], 3, 3);
+		LCD.drawString(puzzleColors[2][3], 4, 3);
+		
+		LCD.drawString(puzzleColors[3][0], 1, 4);
+		LCD.drawString(puzzleColors[3][1], 2, 4);
+		LCD.drawString(puzzleColors[3][2], 3, 4);
+		LCD.drawString(puzzleColors[3][3], 4, 4);
+		
+		LCD.drawString("E", 6, 1);
+		LCD.drawString("E", 7, 1);
+		LCD.drawString("B", 8, 1); // 3,1
+		LCD.drawString("E", 9, 1);
+		
+		LCD.drawString("B", 6, 2); // 1,2
+		LCD.drawString("E", 7, 2);
+		LCD.drawString("E", 8, 2);
+		LCD.drawString("E", 9, 2);
+		
+		LCD.drawString("E", 6, 3);
+		LCD.drawString("B", 7, 3); // 2,3
+		LCD.drawString("B", 8, 3); // 3,3
+		LCD.drawString("E", 9, 3);
+		
+		LCD.drawString("E", 6, 4);
+		LCD.drawString("E", 7, 4);
+		LCD.drawString("E", 8, 4);
+		LCD.drawString("E", 9, 4);
+
+		
+		
+	}
+	
 	String[][] GetPuzzleColors(){
 		
 		String[][] puzzleColors = new String[4][4];
@@ -146,34 +192,26 @@ public class Motors extends Thread{
 				}
 				
 			}
-		}
+		}	
 		
-		/*
-		LCD.drawString(puzzleColors[0][0], 1, 1);
-		LCD.drawString(puzzleColors[0][1], 2, 1);
-		LCD.drawString(puzzleColors[0][2], 3, 1);
-		LCD.drawString(puzzleColors[0][3], 4, 1);
-		
-		LCD.drawString(puzzleColors[1][0], 1, 2);
-		LCD.drawString(puzzleColors[1][1], 2, 2);
-		LCD.drawString(puzzleColors[1][2], 3, 2);
-		LCD.drawString(puzzleColors[1][3], 4, 2);
-		
-		LCD.drawString(puzzleColors[2][0], 1, 3);
-		LCD.drawString(puzzleColors[2][1], 2, 3);
-		LCD.drawString(puzzleColors[2][2], 3, 3);
-		LCD.drawString(puzzleColors[2][3], 4, 3);
-		
-		LCD.drawString(puzzleColors[3][0], 1, 4);
-		LCD.drawString(puzzleColors[3][1], 2, 4);
-		LCD.drawString(puzzleColors[3][2], 3, 4);
-		LCD.drawString(puzzleColors[3][3], 4, 4);
-		*/
+		PrintPuzzle(puzzleColors);
 		
 		return puzzleColors;
 		
 	}
 	
+	void Turn(String direction){
+		
+		if(direction=="right"){
+			Forward(50,25);
+			Delay.msDelay(1000);
+		}
+		else{
+			Forward(25,50);
+			Delay.msDelay(1000);
+		}
+		
+	}
 	
 	public void run(){
 		// must 0.06 , valk = 0.6
@@ -181,9 +219,11 @@ public class Motors extends Thread{
 		double correction=0,value = 0,kp = 1.1; //kp affects the turning when following the line
 		double midpoint = (white - black ) / 2 + black;
 		DEObj.SetMiddleColor(midpoint);
-		int right=0,left=0,forward=38, turn=0, stage=1, rightTurns = 0, straight = 0, time=0;
+		int right=0,left=0,forward=38, turn=0, stage=1, time=0, locationX=0,locationY=0;
 		boolean newBlock = true;
 		String newBlockColor;
+		
+		String[][] puzzleColors = GetPuzzleColors();
 		
 		DEObj.ResetTime(); //to make sure that there is no time counted
 		
@@ -248,106 +288,32 @@ public class Motors extends Thread{
 					}
 					break;
 				
-				//will try to find the colors. Goes from red to blue
 				case 4:
-					String color = GetColor();
 					forward=34;
+					double distance = DEObj.GetDistance();
+					String color = GetColor();
 					
-					if(color=="red"){
-						
-						if(rightTurns==0){	
-							
-							while(true){
-								
-								if(DEObj.getStop()){
-									break;
-								}
-								
-								left = 50;
-								right = 20;
-								Forward(left,right);
-								value = DEObj.getColor();
-								color = GetColor();
-								
-								if(value < (DEObj.GetMiddle() * 1.1) && color != "red"){
-									rightTurns++;
-									
-									left = -30;
-									right = 0;
-									Forward(left,right);
-									Delay.msDelay(450);									
-									break;
-								}
-								Delay.msDelay(100);
-							}
-						}
-						else{
-							left = 47;
-							right = 50;
-							Forward(left,right);
-							Delay.msDelay(700);
-							straight++;
-						}
-					}
-					else if(rightTurns>0 && color == "blue"){
-						
-						if(straight >= 2){
-							stage = 5;
-							LCD.drawString("stage 5", 1, 1);
+					//LCD.drawString(color, 5, 5);
 
-							break;
-						}
-						else{
-							left = 47;
-							right = 50;
-							Forward(left,right);
-							Delay.msDelay(700);
-							straight++;
-						}
+					if(color=="red" && locationX==0 && locationY==0){
+						locationX=3;
+						locationY=4;
+						Turn("right");
+						//LCD.drawString("nyt",4,4);
+					}
+					else if(color=="red" && locationX==3 && locationY==4){
+						
+						locationY=3;
+						Turn("left");
+						
 					}
 					
-					LCD.drawString("d= " + DEObj.GetDistance(), 1, 2);
 					
-					//if( !(DEObj.GetDistance() > 0.04) && newBlock==true){ //Kato että ultrasonikki alustuu oikein
-					if( (DEObj.GetDistance()<0.04) && newBlock==true){
-						
-						newBlockColor = CheckColor();
-						LCD.drawString("block= " + newBlockColor, 1, 4);
-						
-						if(newBlockColor=="black"){
-							//will circle around the block
-							
-							//this sequence will circle around the block
-							Forward(-50,-20);
-							Delay.msDelay(700);
-							Forward(40,40);
-							Delay.msDelay(1500);
-							Forward(50,20);
-							Delay.msDelay(1000);
-							
-							Forward(43,50);
-							Delay.msDelay(900);
-							straight++;
-							
-						}
-						else{
-							newBlock=false;
-						}
-					}
-					
-					LCD.drawString("d= " + DEObj.GetDistance(), 1, 2);
-					
-					//calculations for the turn is calculated here
-					correction = (kp-0.1) * ( midpoint - value);
+					correction = kp * ( midpoint - value);
 					turn = (int)(correction*100);
-					if(DEObj.GetFollow()){
-						left = (forward - turn);
-						right = (forward + turn);
-					}
-					else{
-						left = (forward + turn);
-						right = (forward - turn);
-					}
+
+					left = forward - turn;
+					right = forward + turn;
 					
 					break;
 					
@@ -403,3 +369,106 @@ public class Motors extends Thread{
 	}
 
 }
+
+/*
+String color = GetColor();
+forward=34;
+
+if(color=="red"){
+	
+	if(rightTurns==0){	
+		
+		while(true){
+			
+			if(DEObj.getStop()){
+				break;
+			}
+			
+			left = 50;
+			right = 20;
+			Forward(left,right);
+			value = DEObj.getColor();
+			color = GetColor();
+			
+			if(value < (DEObj.GetMiddle() * 1.1) && color != "red"){
+				rightTurns++;
+				
+				left = -30;
+				right = 0;
+				Forward(left,right);
+				Delay.msDelay(450);									
+				break;
+			}
+			Delay.msDelay(100);
+		}
+	}
+	else{
+		left = 47;
+		right = 50;
+		Forward(left,right);
+		Delay.msDelay(700);
+		straight++;
+	}
+}
+else if(rightTurns>0 && color == "blue"){
+	
+	if(straight >= 2){
+		stage = 5;
+		LCD.drawString("stage 5", 1, 1);
+
+		break;
+	}
+	else{
+		left = 47;
+		right = 50;
+		Forward(left,right);
+		Delay.msDelay(700);
+		straight++;
+	}
+}
+
+double distance = DEObj.GetDistance();
+
+LCD.drawString("d= " + distance, 1, 2);
+
+//if( !(DEObj.GetDistance() > 0.04) && newBlock==true){ //Kato että ultrasonikki alustuu oikein
+if( (distance<0.04) && newBlock==true){
+	
+	newBlockColor = CheckColor();
+	LCD.drawString("block= " + newBlockColor, 1, 4);
+	
+	if(newBlockColor=="black"){
+		//will circle around the block
+		
+		//this sequence will circle around the block
+		Forward(-50,-20);
+		Delay.msDelay(700);
+		Forward(40,40);
+		Delay.msDelay(1500);
+		Forward(50,20);
+		Delay.msDelay(1000);
+		
+		Forward(42,50);
+		Delay.msDelay(800);
+		straight++;
+		
+	}
+	else{
+		newBlock=false;
+	}
+}
+
+LCD.drawString("d= " + DEObj.GetDistance(), 1, 2);
+
+//calculations for the turn is calculated here
+correction = (kp-0.1) * ( midpoint - value);
+turn = (int)(correction*100);
+if(DEObj.GetFollow()){
+	left = (forward - turn);
+	right = (forward + turn);
+}
+else{
+	left = (forward + turn);
+	right = (forward - turn);
+}
+*/
