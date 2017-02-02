@@ -51,15 +51,28 @@ public class MainOfTT {
 		int leftGoalTacho = distance + leftOrigTacho;
 		int	rightGoalTacho = distance + rightOrigTacho;
 		
-		SimpleMove(35,35);
+		int lSpeed=35,rSpeed=35;
+		
+		SimpleMove(lSpeed,rSpeed);
 		
 		while(leftMotor.getTachoCount() < leftGoalTacho || rightMotor.getTachoCount() < rightGoalTacho){
 			
 			Delay.msDelay(5);
+			if((leftMotor.getTachoCount() - leftOrigTacho)+5 < (rightMotor.getTachoCount() - rightOrigTacho)){
+				lSpeed=37;
+			}
+			else if((leftMotor.getTachoCount() - leftOrigTacho) > 5+(rightMotor.getTachoCount() - rightOrigTacho)){
+				rSpeed=37;
+			}
+			else{
+				lSpeed=35;
+				rSpeed=35;
+			}
+			SimpleMove(lSpeed,rSpeed);
 			
 		}
 		
-		StopMotors();
+		StopMotors(); //tarvii vielä työtä!
 		
 	}
 	
@@ -170,13 +183,14 @@ public class MainOfTT {
 
 		//SimpleMove(50,50);
 		//MoveForward(800);
+		//TurnDegrees(90);
+		
+		MoveForward(3000);
 		TurnDegrees(90);
-		Delay.msDelay(500);
-		TurnDegrees(180);
-		Delay.msDelay(1500);
-		TurnDegrees(-90);
-		Delay.msDelay(500);
-		TurnDegrees(-180);
+		MoveForward(1500);
+
+
+		Delay.msDelay(200);
 		StopMotors();
 		
 		PrintLCD("new left ", leftMotor);
