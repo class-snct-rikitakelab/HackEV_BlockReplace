@@ -1,0 +1,189 @@
+import lejos.hardware.lcd.LCD;
+import lejos.hardware.sensor.EV3TouchSensor;
+import lejos.hardware.sensor.SensorMode;
+import lejos.hardware.port.SensorPort;
+import lejos.utility.Delay;
+import lejos.hardware.port.MotorPort;
+import lejos.hardware.port.TachoMotorPort;
+
+
+/*
+ * 	This class was made to test ways to create accurate traverse methods for the lego mindstorm EV3 robot 
+ */
+
+public class MainOfTT {
+
+	static TachoMotorPort leftMotor = MotorPort.C.open(TachoMotorPort.class); // left wheel
+	static TachoMotorPort rightMotor = MotorPort.B.open(TachoMotorPort.class); //right wheel
+	static TachoMotorPort middleMotor = MotorPort.A.open(TachoMotorPort.class); //the "arm"
+	static EV3TouchSensor touchSensor = new EV3TouchSensor(SensorPort.S1); //touch sensor
+	
+	static SensorMode touch = touchSensor.getMode(0);
+	
+	static int LCDIterations = 0;
+
+
+	static public void InitMotors(){ //Initializes the motors for use
+		
+		rightMotor.controlMotor(0, 0);
+		rightMotor.resetTachoCount();
+		
+		leftMotor.controlMotor(0, 0); 
+		leftMotor.resetTachoCount();
+		
+		middleMotor.controlMotor(0, 0);
+		middleMotor.resetTachoCount();
+		
+	}
+	
+	static public void SimpleMove(int left, int right){ //makes the motors left and right move. Moves as far as there is time before motors are stopped
+		
+		rightMotor.controlMotor(right, 1);
+		leftMotor.controlMotor(left, 1);
+		
+	}
+	
+	static public void MoveForward(int distance){ // makes the robot go forward and then stops
+		
+		int leftOrigTacho = leftMotor.getTachoCount();
+		int rightOrigTacho = rightMotor.getTachoCount();
+		
+		int leftGoalTacho = distance + leftOrigTacho;
+		int	rightGoalTacho = distance + rightOrigTacho;
+		
+		SimpleMove(35,35);
+		
+		while(leftMotor.getTachoCount() < leftGoalTacho || rightMotor.getTachoCount() < rightGoalTacho){
+			
+			Delay.msDelay(5);
+			
+		}
+		
+		StopMotors();
+		
+	}
+	
+	static public void TurnDegrees(double degrees){ // will turn the robot the amount of degrees either to the right or to the left depending on if its entered as positive or negative number
+		
+		degrees = degrees * 3.21;
+		
+		if(degrees>0){
+			
+			int OrigTacho = leftMotor.getTachoCount();
+			double GoalTacho = degrees + OrigTacho;
+			
+			SimpleMove(35,0);
+			while(GoalTacho>leftMotor.getTachoCount()){
+				Delay.msDelay(5);
+			}
+		}
+		else if(degrees<0){
+			
+			degrees = degrees * (-1);
+			
+			int OrigTacho = rightMotor.getTachoCount();
+			double GoalTacho = degrees + OrigTacho;
+			
+			SimpleMove(0,35);
+			
+			while(GoalTacho>rightMotor.getTachoCount()){
+				Delay.msDelay(5);
+			}
+		}
+		else{
+			PrintLCD("no degrees set");
+		}
+		
+		StopMotors();
+		
+	}
+	
+	static public void StopMotors(){ //stops the left and right motors and prevents them from moving on their own
+		
+		rightMotor.controlMotor(0, 0);
+		leftMotor.controlMotor(0, 0);
+		
+	}
+	
+	static public void StopMotor(TachoMotorPort motor){
+		
+		motor.controlMotor(0, 0);
+		
+	}
+	
+	static public void PrintLCD(String text, TachoMotorPort motor){ //prints to the next line of the LCD screen with the motors tacho count
+		
+		LCDIterations = CheckIteration(LCDIterations);
+		
+		LCD.drawString(text + motor.getTachoCount(),1,LCDIterations);
+		LCDIterations++;
+		
+		// Integer.toString(INT) allows the printing of only numbers
+				
+	}
+	
+	static public void PrintLCD(String text){ // Prints to the next line of LCD screen without the motors tacho count
+		
+		LCDIterations = CheckIteration(LCDIterations);
+		
+		LCD.drawString(text,1,LCDIterations);
+		LCDIterations++;
+		
+		// Integer.toString(INT) allows the printing of only numbers
+					
+	}
+	
+	static public int CheckIteration(int IterationAmount){ // Iteration amount is sent to this class, if its the same or more than the max iterations, will set it back to 0 and clears the LCD screen. Will send the iteration amount back if its under the max limit
+		
+		int maxIterations = 8; //this depends on the lines on the LCD screen
+		
+		if(IterationAmount>=maxIterations){
+			LCD.clear();
+			return 0;
+		}
+		else{
+			return IterationAmount;
+		}
+	}
+	
+	static public void WaitForPress(){ // waits for the touch sensor to be pressed
+		
+		float tValue[] = new float[touch.sampleSize()];
+		
+		touch.fetchSample(tValue, 0); 
+		while(tValue[0]!=1){
+			touch.fetchSample(tValue, 0);
+		}
+		
+	}
+	
+	public static void main(String[] args) {
+		
+		InitMotors();
+		
+		PrintLCD("Ready");
+		
+		WaitForPress(); //will wait for the touchsensor to be pressed before moving
+		
+		PrintLCD("left ", leftMotor);
+		PrintLCD("right ", rightMotor);
+
+		//SimpleMove(50,50);
+		//MoveForward(800);
+		TurnDegrees(90);
+		Delay.msDelay(500);
+		TurnDegrees(180);
+		Delay.msDelay(1500);
+		TurnDegrees(-90);
+		Delay.msDelay(500);
+		TurnDegrees(-180);
+		StopMotors();
+		
+		PrintLCD("new left ", leftMotor);
+		PrintLCD("new right ", rightMotor);
+				
+		WaitForPress(); // waits for the touchsensor to be pressed before ending the program
+		
+	}
+
+}
