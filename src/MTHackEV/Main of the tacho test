@@ -78,16 +78,17 @@ public class MainOfTT {
 	
 	static public void TurnDegrees(double degrees){ // will turn the robot the amount of degrees either to the right or to the left depending on if its entered as positive or negative number
 		
-		//degrees = degrees * 3.21;
-		degrees = degrees * 1.285;
+		degrees = degrees * 3.209;
+		//degrees = degrees * 1.285;
 		
 		if(degrees>0){
 			
 			int OrigTacho = leftMotor.getTachoCount();
 			double GoalTacho = degrees + OrigTacho;
 			
-			SimpleMove(35,-35);
-			while(GoalTacho>leftMotor.getTachoCount()){
+			//SimpleMove(35,-35);
+			SimpleMove(35,0);
+			while(GoalTacho-2>leftMotor.getTachoCount()){
 				Delay.msDelay(2);
 			}
 		}
@@ -98,9 +99,9 @@ public class MainOfTT {
 			int OrigTacho = rightMotor.getTachoCount();
 			double GoalTacho = degrees + OrigTacho;
 			
-			SimpleMove(-35,35);
-			
-			while(GoalTacho>rightMotor.getTachoCount()){
+			//SimpleMove(-35,35);
+			SimpleMove(0,35);
+			while(GoalTacho-2>rightMotor.getTachoCount()){
 				Delay.msDelay(2);
 			}
 		}
@@ -180,8 +181,8 @@ public class MainOfTT {
 		
 		WaitForPress(); //will wait for the touchsensor to be pressed before moving
 		
-		PrintLCD("left ", leftMotor);
-		PrintLCD("right ", rightMotor);
+		//PrintLCD("left ", leftMotor);
+		//PrintLCD("right ", rightMotor);
 
 		//SimpleMove(50,50);
 		//MoveForward(800);
@@ -203,8 +204,8 @@ public class MainOfTT {
 		Delay.msDelay(200);
 		StopMotors();
 		
-		PrintLCD("4 left ", leftMotor);
-		PrintLCD("4 right ", rightMotor);
+		//PrintLCD("4 left ", leftMotor);
+		//PrintLCD("4 right ", rightMotor);
 				
 		WaitForPress(); // waits for the touchsensor to be pressed before ending the program
 		
