@@ -1,4 +1,3 @@
-import lejos.hardware.lcd.LCD;
 import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.TachoMotorPort;
 import lejos.utility.Delay;
@@ -8,7 +7,7 @@ import lejos.utility.Delay;
 
 public class Motors extends Thread{
 	
-	double white = 0.7, black = 0.06;	
+	double white = 0.7, black = 0.06;	//if for some reason white or black value is not set
 	
 	private DataExchange DEObj;
 	TachoMotorPort leftMotor = MotorPort.C.open(TachoMotorPort.class);
@@ -20,16 +19,16 @@ public class Motors extends Thread{
 		DEObj = DE;
 	}
 	
-	public void SetBlack(){
+	public void SetBlack(){ //sets the current value of color sensor as black
 		black = DEObj.getColor();
 	}
 	
-	public void SetWhite(){
+	public void SetWhite(){ //sets the current value of color sensor as white 
 		GetPuzzleColors();
 		white = DEObj.getColor();
 		}
 	
-	public String GetColor(){
+	public String GetColor(){ //return the color based on the RGB values
 		
 		float[] RGB = new float[3]; //Red = 0, Green = 1, Blue = 2
 		
@@ -58,7 +57,7 @@ public class Motors extends Thread{
 		
 	}
 
-	public void MotorInit(){
+	public void MotorInit(){ // makes the motors ready for use
 		
 		rightMotor.controlMotor(0, 0);
 		rightMotor.resetTachoCount();
@@ -68,30 +67,19 @@ public class Motors extends Thread{
 		
 		middleMotor.controlMotor(0, 0);
 		middleMotor.resetTachoCount();
+		
 				
 	}
 	
-	private void Forward(int left, int right){
+	private void Forward(int left, int right){ //makes the robot go forward
 		rightMotor.controlMotor(right, 1);
 		leftMotor.controlMotor(left, 1);
 	}
 	
-	private String CheckColor(){
+	private String CheckColor(){ //will lift the arm and check the color of the block
 				
-		/*
-		Forward(left,right);		
-		middleMotor.controlMotor(30,1);
-		Delay.msDelay(700);
-		middleMotor.controlMotor(0,1);
-		Delay.msDelay(250);
-		String color = GetColor();
-		Delay.msDelay(250);
-		middleMotor.controlMotor(40, 2);
-		Delay.msDelay(500);
-		middleMotor.controlMotor(0,0);
-		*/
-		
 		Forward(0,0);
+
 		//nostaa keskimmäisen 90 astetta (alk 180)
 		SetMiddle(90);
 		//ottaa värin
@@ -99,10 +87,15 @@ public class Motors extends Thread{
 		//laskee keskimmäisen
 		SetMiddle(180);
 		
+		//Forward(-30,-30);
+		//Delay.msDelay(200);
+		Forward(0,0);
+
+		
 		return color;
 	}
-
-	void SetMiddle(int degrees){
+	
+	void SetMiddle(int degrees){ //moves the arm
 		
 		int degreeValue = DEObj.GetDegrees(), direction=0;
 		DEObj.SetDegrees(degrees);
@@ -126,53 +119,7 @@ public class Motors extends Thread{
 		
 	}
 	
-	void PrintPuzzle(String[][]puzzleColors){
-		
-		LCD.drawString(puzzleColors[0][0], 1, 1);
-		LCD.drawString(puzzleColors[0][1], 2, 1);
-		LCD.drawString(puzzleColors[0][2], 3, 1);
-		LCD.drawString(puzzleColors[0][3], 4, 1);
-		
-		LCD.drawString(puzzleColors[1][0], 1, 2);
-		LCD.drawString(puzzleColors[1][1], 2, 2);
-		LCD.drawString(puzzleColors[1][2], 3, 2);
-		LCD.drawString(puzzleColors[1][3], 4, 2);
-		
-		LCD.drawString(puzzleColors[2][0], 1, 3);
-		LCD.drawString(puzzleColors[2][1], 2, 3);
-		LCD.drawString(puzzleColors[2][2], 3, 3);
-		LCD.drawString(puzzleColors[2][3], 4, 3);
-		
-		LCD.drawString(puzzleColors[3][0], 1, 4);
-		LCD.drawString(puzzleColors[3][1], 2, 4);
-		LCD.drawString(puzzleColors[3][2], 3, 4);
-		LCD.drawString(puzzleColors[3][3], 4, 4);
-		
-		LCD.drawString("E", 6, 1);
-		LCD.drawString("E", 7, 1);
-		LCD.drawString("B", 8, 1); // 3,1
-		LCD.drawString("E", 9, 1);
-		
-		LCD.drawString("B", 6, 2); // 1,2
-		LCD.drawString("E", 7, 2);
-		LCD.drawString("E", 8, 2);
-		LCD.drawString("E", 9, 2);
-		
-		LCD.drawString("E", 6, 3);
-		LCD.drawString("B", 7, 3); // 2,3
-		LCD.drawString("B", 8, 3); // 3,3
-		LCD.drawString("E", 9, 3);
-		
-		LCD.drawString("E", 6, 4);
-		LCD.drawString("E", 7, 4);
-		LCD.drawString("E", 8, 4);
-		LCD.drawString("E", 9, 4);
-
-		
-		
-	}
-	
-	String[][] GetPuzzleColors(){
+	String[][] GetPuzzleColors(){ // storages the locations of the colors of the puzzle circles
 		
 		String[][] puzzleColors = new String[4][4];
 
@@ -192,38 +139,22 @@ public class Motors extends Thread{
 				}
 				
 			}
-		}	
-		
-		PrintPuzzle(puzzleColors);
+		}
 		
 		return puzzleColors;
 		
 	}
 	
-	void Turn(String direction){
-		
-		if(direction=="right"){
-			Forward(50,25);
-			Delay.msDelay(1000);
-		}
-		else{
-			Forward(25,50);
-			Delay.msDelay(1000);
-		}
-		
-	}
 	
-	public void run(){
+	public void run(){ 
 		// must 0.06 , valk = 0.6
 		
 		double correction=0,value = 0,kp = 1.1; //kp affects the turning when following the line
 		double midpoint = (white - black ) / 2 + black;
 		DEObj.SetMiddleColor(midpoint);
-		int right=0,left=0,forward=38, turn=0, stage=1, time=0, locationX=0,locationY=0;
+		int right=0,left=0,forward=38, turn=0, stage=1, rightTurns = 0, straight = 0, time=0;
 		boolean newBlock = true;
 		String newBlockColor;
-		
-		String[][] puzzleColors = GetPuzzleColors();
 		
 		DEObj.ResetTime(); //to make sure that there is no time counted
 		
@@ -233,33 +164,32 @@ public class Motors extends Thread{
 			
 			value = DEObj.getColor(); //get the color value
 			
-			switch(stage){
+			switch(stage){ //will follow the line and continue trying to find it unless little while has passed on white.
 			
-				//will follow the line and continue trying to find it unless little while has passed on white.
 				case 1:
 					//this moves code to stage 2 if only white is detected for a while
 					if(DEObj.GetTime() > 4800 && DEObj.GetFollow()){ 
 						stage=2;
-						LCD.drawString("stage 2", 1, 1);
+						//LCD.drawString("stage 2", 1, 1);
 						break;
 					}
 					
 					//calculations for the turn is calculated here
-					correction = kp * ( midpoint - value);
+					correction = kp * ( midpoint - value); 
 					turn = (int)(correction*100);
-					if(turn < -5){
+					if(turn < -5){ //turns slower to the other side in order not to do drastic turns when reaching the white section
 						turn = -5;
 					}
 					left = forward - turn;
 					right = forward + turn;
 					break;
 					
-					// will search for non-white line
-				case 2:
+					
+				case 2: // will search for non-white line
 					//if no longer on only white, will go to stage 3
-					if(value < (DEObj.GetMiddle() * 1.2)){
+					if(value < (DEObj.GetMiddle() * 1.1)){
 						stage = 3;
-						LCD.drawString("stage 3", 1, 1);
+						//LCD.drawString("stage 3", 1, 1);
 						break;
 					}
 					
@@ -269,58 +199,145 @@ public class Motors extends Thread{
 					right = forward + (turn);				
 					break;
 					
-					// stops and turns left in order go to the right direction
-				case 3:
+				case 3: // stops and turns left in order go to the right direction
 					
 					left = -20;
 					right = 45;
 					time++;
+
+					double temp = DEObj.GetMiddle();
 					
-					if(value < DEObj.GetMiddle() * 1.1 && time > 300){
+					if(value > temp * 0.6 && value < temp * 1.2 && time > 700){
 						//left = 0;
 						//right = -30;
 						Forward(0,-30);
 						Delay.msDelay(100);
 						time = 0;
 						stage = 4;
-						LCD.drawString("stage 4", 1, 1);
+						//LCD.drawString("stage 4", 1, 1);
 
 					}
 					break;
 				
-				case 4:
-					forward=34;
-					double distance = DEObj.GetDistance();
+				
+				case 4: //will try to find the colors. Goes from red to blue. If block is detected, will check it
+					
 					String color = GetColor();
+					forward=34;
 					
-					//LCD.drawString(color, 5, 5);
+					if(color=="red"){ //if color red is detected
+						
+						if(rightTurns==0){	//if the robot has not yet turned on circles
+							
+							while(true){
+								
+								if(DEObj.getStop()){
+									break;
+								}
+								
+								Forward(50,20);
+								value = DEObj.getColor();
+								color = GetColor();
+								
+								temp = DEObj.GetMiddle();
+								
+								if((value > (temp * 0.7) && color != "red") || color=="black"){
+									rightTurns++;
+									
+									left = -30;
+									right = 0;
+									Forward(left,right);
+									Delay.msDelay(450);									
+									break;
+								}
+								Delay.msDelay(100);
+							}
+						}
+						else{ //for crossing rec circles
+							left = 49;
+							right = 50;
+							Forward(left,right);
+							Delay.msDelay(700);
+							straight++;
+						}
+					}
+					else if(rightTurns>0 && color == "blue"){ //for crossing the blue circles and crossing to the next stage
+						
+						if(straight >= 2){
+							stage = 5;
+							//LCD.drawString("stage 5", 1, 1);
 
-					if(color=="red" && locationX==0 && locationY==0){
-						locationX=3;
-						locationY=4;
-						Turn("right");
-						//LCD.drawString("nyt",4,4);
-					}
-					else if(color=="red" && locationX==3 && locationY==4){
-						
-						locationY=3;
-						Turn("left");
-						
+							break;
+						}
+						else{
+							left = 49;
+							right = 50;
+							Forward(left,right);
+							Delay.msDelay(700);
+							straight++;
+						}
 					}
 					
+					//LCD.drawString("d= " + DEObj.GetDistance(), 1, 2);
 					
-					correction = kp * ( midpoint - value);
+					//if( !(DEObj.GetDistance() > 0.04) && newBlock==true){ 
+					if( (DEObj.GetDistance()<0.04) && newBlock==true){ //looks if blocks are detected
+						
+						newBlockColor = CheckColor();
+						//LCD.drawString("block= " + newBlockColor, 1, 4);
+						
+						if(newBlockColor=="black"){ //if block is black
+							//will circle around the block
+							
+							//this sequence will circle around the block
+							Forward(-50,-17);
+							Delay.msDelay(700);
+							Forward(40,40);
+							Delay.msDelay(1500);
+							Forward(50,5);
+							Delay.msDelay(950);
+							
+							while(value > DEObj.GetMiddle() * 0.6){ //will continue the puzzle after black line is detected
+								
+								if(DEObj.getStop()){
+									break;
+								}
+								
+								value = DEObj.getColor();
+								Forward(49,50);
+								Delay.msDelay(5);
+							}
+							straight++;
+
+							Forward(-30,30);
+							Delay.msDelay(1000);	
+							
+						}
+						else{
+							newBlock=false;
+						}
+					}
+					
+					//LCD.drawString("d= " + DEObj.GetDistance(), 1, 2);
+					
+					//calculations for the turn is calculated here
+					correction = (kp-0.1) * ( midpoint - value);
 					turn = (int)(correction*100);
-
-					left = forward - turn;
-					right = forward + turn;
+					if(DEObj.GetFollow()){
+						left = (forward - turn);
+						right = (forward + turn);
+					}
+					else{
+						left = (forward + turn);
+						right = (forward - turn);
+					}
 					
 					break;
 					
-				case 5:
-					forward=38;
+				case 5: //will move on white until black line is detected
+					forward=39;
 					left=40;
-					right=35;
+					right=37;
 					
 					time++;
 					if(value < DEObj.GetMiddle() * 1.1 && time > 1500){
@@ -329,19 +346,19 @@ public class Motors extends Thread{
 						midpoint = midpoint + 0.105;
 						
 						left = 0;
-						right = -30;
+						right = -35;
 						Forward(left,right);
 						Delay.msDelay(320);	
 						
 						stage = 6;
-						LCD.drawString("stage 6", 1, 1);
+						//LCD.drawString("stage 6", 1, 1);
 
 						break;
 					}
 					
 					break;
 					
-				case 6:
+				case 6: //will follow the line until the end
 					
 					correction = kp * ( midpoint - value);
 					turn = (int)(correction*100);
@@ -369,106 +386,3 @@ public class Motors extends Thread{
 	}
 
 }
-
-/*
-String color = GetColor();
-forward=34;
-
-if(color=="red"){
-	
-	if(rightTurns==0){	
-		
-		while(true){
-			
-			if(DEObj.getStop()){
-				break;
-			}
-			
-			left = 50;
-			right = 20;
-			Forward(left,right);
-			value = DEObj.getColor();
-			color = GetColor();
-			
-			if(value < (DEObj.GetMiddle() * 1.1) && color != "red"){
-				rightTurns++;
-				
-				left = -30;
-				right = 0;
-				Forward(left,right);
-				Delay.msDelay(450);									
-				break;
-			}
-			Delay.msDelay(100);
-		}
-	}
-	else{
-		left = 47;
-		right = 50;
-		Forward(left,right);
-		Delay.msDelay(700);
-		straight++;
-	}
-}
-else if(rightTurns>0 && color == "blue"){
-	
-	if(straight >= 2){
-		stage = 5;
-		LCD.drawString("stage 5", 1, 1);
-
-		break;
-	}
-	else{
-		left = 47;
-		right = 50;
-		Forward(left,right);
-		Delay.msDelay(700);
-		straight++;
-	}
-}
-
-double distance = DEObj.GetDistance();
-
-LCD.drawString("d= " + distance, 1, 2);
-
-//if( !(DEObj.GetDistance() > 0.04) && newBlock==true){ //Kato että ultrasonikki alustuu oikein
-if( (distance<0.04) && newBlock==true){
-	
-	newBlockColor = CheckColor();
-	LCD.drawString("block= " + newBlockColor, 1, 4);
-	
-	if(newBlockColor=="black"){
-		//will circle around the block
-		
-		//this sequence will circle around the block
-		Forward(-50,-20);
-		Delay.msDelay(700);
-		Forward(40,40);
-		Delay.msDelay(1500);
-		Forward(50,20);
-		Delay.msDelay(1000);
-		
-		Forward(42,50);
-		Delay.msDelay(800);
-		straight++;
-		
-	}
-	else{
-		newBlock=false;
-	}
-}
-
-LCD.drawString("d= " + DEObj.GetDistance(), 1, 2);
-
-//calculations for the turn is calculated here
-correction = (kp-0.1) * ( midpoint - value);
-turn = (int)(correction*100);
-if(DEObj.GetFollow()){
-	left = (forward - turn);
-	right = (forward + turn);
-}
-else{
-	left = (forward + turn);
-	right = (forward - turn);
-}
-*/
